@@ -35,12 +35,10 @@ FROM cpu-test-1 AS build
 
 WORKDIR /workspace/vllm
 
+RUN git status
+
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -v -r requirements/cpu.txt
-
-COPY . .
-ARG GIT_REPO_CHECK=0
-RUN if [ "$GIT_REPO_CHECK" != 0 ]; then bash tools/check_repo.sh ; fi
 
 # Support for building with non-AVX512 vLLM
 ARG VLLM_CPU_DISABLE_AVX512
