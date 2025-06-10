@@ -59,5 +59,4 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 USER 1001
 
-ENTRYPOINT ["vllm"]
-# ENTRYPOINT ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+ENTRYPOINT ["python3", "-m", "vllm.entrypoints.openai.api_server"]
