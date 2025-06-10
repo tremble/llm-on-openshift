@@ -24,31 +24,28 @@ RUN git clone https://github.com/vllm-project/vllm.git && \
 ARG PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu"
 ENV PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL}
 
+WORKDIR /workspace/vllm
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,src=requirements-build.txt,target=requirements-build.txt \
     pip install --upgrade pip && \
-    pip install -r requirements-build.txt
+    pip install -r requirements/build.txt
+WORKDIR /workspace
 
 FROM cpu-test-1 AS build
 
 WORKDIR /workspace/vllm
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,src=requirements-common.txt,target=requirements-common.txt \
-    --mount=type=bind,src=requirements-cpu.txt,target=requirements-cpu.txt \
-    pip install -v -r requirements-cpu.txt
+    pip install -v -r requirements/cpu.txt
 
 COPY . .
 ARG GIT_REPO_CHECK=0
-RUN --mount=type=bind,source=.git,target=.git \
-    if [ "$GIT_REPO_CHECK" != 0 ]; then bash tools/check_repo.sh ; fi
+RUN if [ "$GIT_REPO_CHECK" != 0 ]; then bash tools/check_repo.sh ; fi
 
 # Support for building with non-AVX512 vLLM
 ARG VLLM_CPU_DISABLE_AVX512
 ENV VLLM_CPU_DISABLE_AVX512=${VLLM_CPU_DISABLE_AVX512}
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=.git,target=.git \
     VLLM_TARGET_DEVICE=cpu python3 setup.py bdist_wheel && \
     pip install dist/*.whl && \
     rm -rf dist
