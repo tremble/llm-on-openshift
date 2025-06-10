@@ -5,7 +5,9 @@ FROM registry.access.redhat.com/ubi9/python-311 AS cpu-test-1
 USER 0
 
 RUN dnf update -y && \
-    dnf install -y cmake gcc gcc-c++ make automake numactl-devel && \
+    dnf install -y cmake gcc gcc-c++ make automake && \
+    rpm --import https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official-SHA256 && \
+    dnf install -y https://rpmfind.net/linux/centos-stream/9-stream/AppStream/x86_64/os/Packages/numactl-devel-2.0.19-1.el9.x86_64.rpm && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
